@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Torch Dataloader &mdash; NVTabular 2020 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="TensorFlow Dataloader" href="tensorflow_dataloader.html" />
+    <link rel="prev" title="NormalizeMinMax" href="ops/normalizeminmax.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> NVTabular
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../HowItWorks.html">How it Works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="workflow.html">Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ops/index.html">Operators</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Torch Dataloader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tensorflow_dataloader.html">TensorFlow Dataloader</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NVTabular</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">API Documentation</a> &raquo;</li>
+        
+      <li>Torch Dataloader</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-nvtabular.torch_dataloader">
+<span id="torch-dataloader"></span><h1>Torch Dataloader<a class="headerlink" href="#module-nvtabular.torch_dataloader" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.AsyncIterator">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">AsyncIterator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cats</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">conts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">library</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">devices</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#AsyncIterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.AsyncIterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class serves as the iterator class for the AsyncTensorBatchDatasetItr.
+This will control iteration and allow for clean up after iteration is complete.
+Without requiring the destruction of the Parent class.</p>
+<p>Parameters:
+dataset: NVTabular dataset
+cats: [str], the list of categorical columns in the dataset
+conts: [str], the list of continuous columns in the dataset
+labels: [str], the list of label columns in the dataset
+batch_size: int, the size of each batch to supply to the model
+shuffle: bool, enable/disable shuffling of dataset
+target: the target library that will use the tensor transformed data</p>
+<blockquote>
+<div><p>currently supported: torch</p>
+</div></blockquote>
+<p>devices: [int], list represents all avialable GPU IDs</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.ChunkQueue">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">ChunkQueue</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_parts</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">cat_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cont_cols</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_cols</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#ChunkQueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.ChunkQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class takes partitions (parts) from an NVTabular dataset
+and concatenates them into a cudf dataframe “chunk”. This chunk
+is subsequently transformed into its tensor representation using
+the iterator’s transform.</p>
+<p>Parameters:
+num_parts: int, number of partitions from the iterator, an NVTabular Dataset,</p>
+<blockquote>
+<div><p>to concatenate into a “chunk”</p>
+</div></blockquote>
+<p>batch_size: int, the number of records in each batch
+iterator: TensorBatchDatasetItr, the iterator to pull the partitions (parts) from
+shuffle: bool, enable/disable shuffling
+cats: [str], the list of categorical columns in the dataset
+conts: [str], the list of continuous columns in the dataset
+labels: [str], the list of label columns in the dataset</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.DLDataLoader">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">DLDataLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_sampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">num_workers</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">collate_fn</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pin_memory</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">drop_last</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">worker_init_fn</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">multiprocessing_context</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">generator</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#DLDataLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.DLDataLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataloader.DataLoader</span></code></p>
+<p>This class is an extension of the torch dataloader.
+It is required, to support the FastAI framework.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.TensorBatchDatasetItr">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">TensorBatchDatasetItr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">total_devs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">indices</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#TensorBatchDatasetItr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.TensorBatchDatasetItr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for all dataset to tensor iterators.
+Takes input of an NVTabular dataset
+and supplies user defined size chunks.</p>
+<p>Parameters
+dataset: NVTabular dataset
+shuffle: bool, specifying whether to shuffle the partitions</p>
+<blockquote>
+<div><p>and shuffle chunks before creating tensor batches</p>
+</div></blockquote>
+<p>device: int, represents targeted GPU id
+total_devs: [int], list represents all avialable GPU IDs</p>
+<dl class="py method">
+<dt id="nvtabular.torch_dataloader.TensorBatchDatasetItr.device_ctx">
+<code class="sig-name descname">device_ctx</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dev</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#TensorBatchDatasetItr.device_ctx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.TensorBatchDatasetItr.device_ctx" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is designed to return a context for a target device. This
+should be an integer signifying the target GPU’s identifier. Currently
+this is dependent on the targeted framework. Need method exposed via
+rapids or cudf to factor this api call out.</p>
+<p>Parameters
+device: int, the target GPU’s id</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.TensorBatchDatasetItrFactory">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">TensorBatchDatasetItrFactory</code><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#TensorBatchDatasetItrFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.TensorBatchDatasetItrFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This is the Factory that creates the correct iterator,
+given a target library.</p>
+<p>Parameters:
+dataset: NVTabular dataset
+target: str, target library you want the iterator supported - torch
+shuffle: bool, shuffle dataset
+device: int, represents targeted GPU id
+total_devs: [int], list represents all avialable GPU IDs</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.TensorItr">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">TensorItr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tensors</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">pin_memory</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#TensorItr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.TensorItr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Tensor dataset, for data already in tensor format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensors</strong> (<em>list of tensors</em>) – </p></li>
+<li><p><strong>batch_size</strong> (<em>the size of each batch to return.</em>) – </p></li>
+<li><p><strong>pin_memory</strong> (<em>allows pinning of cpu memory</em><em>, </em><em>if used.</em>) – </p></li>
+<li><p><strong>shuffle</strong> (<em>keyword to trigger the shuffle of batch</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.TorchAsyncItr">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">TorchAsyncItr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">cats</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">conts</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">target</span><span class="o">=</span><span class="default_value">'torch'</span></em>, <em class="sig-param"><span class="n">devices</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#TorchAsyncItr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.TorchAsyncItr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.IterableDataset</span></code></p>
+<p>This class, creates batches of, a user defined size, tensor
+represenation of the data supplied. The data input requires an
+NVTabular dataset. Handles spillover to ensure all batches are
+the specified size until the final batch.</p>
+<p>Parameters:
+dataset: NVTabular dataset
+cats: [str], the list of categorical columns in the dataset
+conts: [str], the list of continuous columns in the dataset
+labels: [str], the list of label columns in the dataset
+batch_size: int, the size of each batch to supply to the model
+shuffle: bool, enable/disable shuffling of dataset
+target: the target library that will use the tensor transformed data</p>
+<blockquote>
+<div><p>currently supported: torch</p>
+</div></blockquote>
+<p>devices: [int], list represents all avialable GPU IDs</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="nvtabular.torch_dataloader.TorchTensorBatchDatasetItr">
+<em class="property">class </em><code class="sig-prename descclassname">nvtabular.torch_dataloader.</code><code class="sig-name descname">TorchTensorBatchDatasetItr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">total_devs</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">indices</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#TorchTensorBatchDatasetItr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.TorchTensorBatchDatasetItr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nvtabular.torch_dataloader.TensorBatchDatasetItr" title="nvtabular.torch_dataloader.TensorBatchDatasetItr"><code class="xref py py-class docutils literal notranslate"><span class="pre">nvtabular.torch_dataloader.TensorBatchDatasetItr</span></code></a></p>
+<p>For PyTorch Only:
+Takes input of an NVTabular dataset
+and creates TorchTensorBatchDatasetItr
+supplying user defined size chunks.</p>
+<dl class="py method">
+<dt id="nvtabular.torch_dataloader.TorchTensorBatchDatasetItr.device_ctx">
+<code class="sig-name descname">device_ctx</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dev</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nvtabular/torch_dataloader.html#TorchTensorBatchDatasetItr.device_ctx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nvtabular.torch_dataloader.TorchTensorBatchDatasetItr.device_ctx" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is designed to return a context for a target device. This
+should be an integer signifying the target GPU’s identifier. Currently
+this is dependent on the targeted framework. Need method exposed via
+rapids or cudf to factor this api call out.</p>
+<p>Parameters
+device: int, the target GPU’s id</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tensorflow_dataloader.html" class="btn btn-neutral float-right" title="TensorFlow Dataloader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ops/normalizeminmax.html" class="btn btn-neutral float-left" title="NormalizeMinMax" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, NVIDIA
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Other Versions</span>
+    v: main
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    <dl>
+      <dt>Tags</dt>
+      <dd><a href="../../v0.1.0/api/torch_dataloader.html">v0.1.0</a></dd>
+      <dd><a href="../../v0.1.1/api/torch_dataloader.html">v0.1.1</a></dd>
+    </dl>
+    <dl>
+      <dt>Branches</dt>
+      <dd><a href="torch_dataloader.html">main</a></dd>
+    </dl>
+  </div>
+</div>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
