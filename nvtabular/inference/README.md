@@ -21,6 +21,10 @@ this model using tf serving.
 
 ### Creating a Tensorflow Custom Op
 
+To build the custom op source code, we'll use docker container. But, to call cupy or cudf functions,
+we'll need to install conda to get the libraries and modules into the container.
+
+#### Prepare the Docker Container
 To create a tensorflow custom op, we mainly follow the steps on this [custom op github repo](https://github.com/tensorflow/custom-op), and
 added the necessary code and updates on bazel files. Please go through this repo if you'd like to learn more about
 the available repos and custom op development. This repo suggests using the available docker containers
@@ -60,13 +64,13 @@ The custom ops will need to depend on TensorFlow headers and shared library libt
 which are distributed with TensorFlow official pip package. If you would like to use Bazel to build your ops, 
 you might also want to set a few action_envs so that Bazel can find the installed TensorFlow. 
 We provide a configure script that does these for you. Simply run ./configure.sh in the docker container and you are good to go.
-(Copied directly from [here]([custom op github repo](https://github.com/tensorflow/custom-op))
+(Copied directly from [here](https://github.com/tensorflow/custom-op))
 
 ```
 ./configure.sh
 ```
 
-To test if everything works well, you can build this CPU custome op example follows;
+To test if everything works well, you can build this CPU custom op example follows;
 
 ```
 bazel build tensorflow_zero_out:python/ops/_zero_out_ops.so
@@ -79,5 +83,53 @@ For GPU example;
 bazel build tensorflow_time_two:python/ops/_time_two_ops.so
 bazel test tensorflow_time_two:time_two_ops_py_test
 ```
+
+Now, we need to install the libraries and modules. To do that, we'll use conda. You install the full conda but
+we used the miniconda for this PoC. Run the miniconda script;
+
+```
+bash Miniconda3-latest-Linux-x86_64.sh
+```
+
+When the miniconda is installed, you can run;
+
+```
+source ~/.bashrc
+```
+
+to run conda in the container.
+
+Then, create a new environment and activate it;
+
+```
+conda create -n tf python=3.8
+conda activate tf
+```
+
+In this PoC, we used cupy. We'll try with cudf as well later. You can install cudf (installs cupy as well) as follows;
+
+```
+conda install -c rapidsai -c nvidia -c numba -c conda-forge \
+    cudf=0.16 python=3.8 cudatoolkit=10.1
+```
+
+Also install pybind11 using;
+
+```
+conda install -c conda-forge pybind11
+```
+
+You might want to commit the changes in this container to use it later;
+
+```
+docker ps
+```
+
+To get the container id (<container_id>) and then run commit;
+
+```
+docker commit <container_id> tensorflow/tensorflow:custom-op-gpu-ubuntu16-v1
+```
+
 
 
