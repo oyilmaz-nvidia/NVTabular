@@ -1,0 +1,60 @@
+load("//tf:tf_configure.bzl", "tf_configure")
+load("//gpu:cuda_configure.bzl", "cuda_configure")
+
+tf_configure(name = "local_config_tf")
+
+cuda_configure(name = "local_config_cuda")
+
+new_local_repository(
+    name = "conda_python",
+    path = "/root/miniconda3/envs/tf/include/python3.7m",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "headers",
+    hdrs = glob(["**/*.h"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+new_local_repository(
+    name = "pybind11",
+    path = "/root/miniconda3/envs/tf/include/pybind11",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "headers",
+    hdrs = glob(["**/*.h"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+new_local_repository(
+    name = "conda_lib",
+    path = "/root/miniconda3/envs/tf/lib",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "python37",
+    srcs = ["libpython3.7m.so"],
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+new_local_repository(
+    name = "conda_lib_python",
+    path = "/root/miniconda3/envs/tf/lib/python3.7/config-3.7m-x86_64-linux-gnu",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "files",
+    srcs = glob(["*.so"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+
