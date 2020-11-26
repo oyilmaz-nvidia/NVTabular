@@ -24,7 +24,7 @@ this model using tf serving.
 To build the custom op source code, we'll use docker container. But, to call cupy or cudf functions,
 we'll need to install conda to get the libraries and modules into the container.
 
-#### Prepare the Docker Container
+#### Install Libraries and Modules in the Docker Container
 To create a tensorflow custom op, we mainly follow the steps on this [custom op github repo](https://github.com/tensorflow/custom-op), and
 added the necessary code and updates on bazel files. Please go through this repo if you'd like to learn more about
 the available repos and custom op development. This repo suggests using the available docker containers
@@ -38,6 +38,7 @@ git clone https://github.com/tensorflow/custom-op.git my_op
 cd my_op
 ```
 
+You can find the updated version of this code in this repo as well. We just included them in case you need it.
 We'll be using conda to install the necessary libraries and modules. So, you can download the miniconda script file into
 this folder for convenience;
 
@@ -131,5 +132,81 @@ To get the container id (<container_id>) and then run commit;
 docker commit <container_id> tensorflow/tensorflow:custom-op-gpu-ubuntu16-v1
 ```
 
+#### Update the Bazel Files
 
+Bazel has two main files, namely WORKSPACE and BUILD. There is only one WORKSPACE file that is located in the
+main folder. Then, for every code folder in the project, there is a BUILD file. We'll update these files
+to be able to build our code.
 
+First, we need to add the path of libraries into bashrc. Assuming miniconda is installed in root folder, add the following into
+bashrc;
+
+```
+export LD_LIBRARY_PATH=/root/miniconda3/envs/tf/lib/:$LD_LIBRARY_PATH
+```
+
+You should change the path if you installed the miniconda in a different location.
+
+We need to add the path of the libraries in WORKSPACE file. Add the following into WORKSPACE file;
+
+```
+new_local_repository(
+    name = "conda_python",
+    path = "/root/miniconda3/envs/tf/include/python3.7m",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "headers",
+    hdrs = glob(["**/*.h"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+new_local_repository(
+    name = "pybind11",
+    path = "/root/miniconda3/envs/tf/include/pybind11",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "headers",
+    hdrs = glob(["**/*.h"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+new_local_repository(
+    name = "conda_lib",
+    path = "/root/miniconda3/envs/tf/lib",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "python37",
+    srcs = ["libpython3.7m.so"],
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+new_local_repository(
+    name = "conda_lib_python",
+    path = "/root/miniconda3/envs/tf/lib/python3.7/config-3.7m-x86_64-linux-gnu",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+cc_library(
+    name = "files",
+    srcs = glob(["*.so"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+```
+
+You should change the path
+
+```
+/root/miniconda3/envs/tf/
+``` 
+
+in these local repos if you installed miniconda in a different location.
