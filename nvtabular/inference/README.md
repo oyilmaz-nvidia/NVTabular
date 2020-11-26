@@ -210,3 +210,159 @@ You should change the path
 ``` 
 
 in these local repos if you installed miniconda in a different location.
+
+In this PoC, we directly updated the code of tensorflow_time_two. You can actually copy and paste
+this code and work on the copid files if you like. Now, we'll update the BUILD file of tensorflow_time_two example.
+
+"time_two_ops_gpu" rule in tensorflow_time_two/BUILD file should be updated as follows;
+
+```
+cc_library(
+    name = "time_two_ops_gpu",
+    srcs = ["cc/kernels/time_two.h", "cc/kernels/time_two_kernels.cu.cc"],
+    deps = [
+        "@local_config_tf//:libtensorflow_framework",
+        "@local_config_tf//:tf_header_lib",
+        "@conda_python//:headers",
+        "@pybind11//:headers",
+        "@conda_lib//:python37",
+    ] + if_cuda_is_configured([":cuda",  "@local_config_cuda//cuda:cuda_headers"]),
+    alwayslink = 1,
+    linkopts = ["-lpython3.7m",
+                "-lpthread",
+                "-lcrypt",
+                "-ldl",
+                "-lutil",
+                "-lrt",
+                "-lm",
+                ],
+    copts = ["-Iexternal/conda_python", 
+             "-Iexternal/pybind11", 
+             "-pthread", 
+             "-std=c++11",
+             "-D_GLIBCXX_USE_CXX11_ABI=0",
+             "-Wall",
+             "-Wno-unused-result",
+             "-Wsign-compare", 
+             "-march=nocona", 
+             "-mtune=haswell", 
+             "-ftree-vectorize", 
+             "-fPIC", 
+             "-fstack-protector-strong",
+             "-O3", 
+             "-ffunction-sections", 
+             "-pipe", 
+             "-isystem", 
+             "-fuse-linker-plugin", 
+             "-ffat-lto-objects", 
+             "-flto-partition=none", 
+             "-flto", 
+             "-DNDEBUG", 
+             "-fwrapv"] + if_cuda_is_configured(["-DTENSORFLOW_USE_NVCC=1", "-DGOOGLE_CUDA=1", "-x cuda", "-nvcc_options=relaxed-constexpr", "-nvcc_options=ftz=true"]),
+            
+)
+```
+
+We suggest copying and pasting the content of BUILD file in our repo into yours since you might miss some of the updates.
+
+
+#### Update the Code
+
+We'll update the code in tensorflow_time_two/cc/kernels/time_two_kernels.cu.cc to replace the cuda kernel with cupy functions.
+Here is the new code;
+
+```
+#if GOOGLE_CUDA
+
+#define EIGEN_USE_GPU
+
+#include "time_two.h"
+#include "tensorflow/core/util/gpu_kernel_helper.h"
+#include <embed.h>
+#include <Python.h>
+#include <iostream>
+
+namespace py = pybind11;
+
+namespace tensorflow {
+namespace functor {
+
+typedef Eigen::GpuDevice GPUDevice;
+
+
+template <typename T>
+void create_cupy(int size, const T* in, T* out) {
+  
+  py::gil_scoped_acquire acquire;
+  auto va = py::module::import("vector_add");
+
+  py::dict cai_in;
+  std::tuple<long> shape((long)size);
+  cai_in["shape"] = shape;
+  std::tuple<long, bool> data_in((long)*(&in), true);
+  cai_in["data"] = data_in; 
+
+  py::dict cai_out;
+  cai_out["shape"] = shape;
+  std::tuple<long, bool> data_out((long)*(&out), false);
+  cai_out["data"] = data_out; 
+
+  py::object result2 = va.attr("run_inference")(cai_in, cai_out);
+}
+
+// Define the GPU implementation that launches the CUDA kernel.
+template <typename T>
+struct TimeTwoFunctor<GPUDevice, T> {
+  void operator()(const GPUDevice& d, int size, const T* in, T* out) {
+    // Launch the cuda kernel.
+    //
+    // See core/util/cuda_kernel_helper.h for example of computing
+    // block count and thread_per_block count.
+
+    create_cupy(size, in, out);
+  }
+};
+
+// Explicitly instantiate functors for the types of OpKernels registered.
+template struct TimeTwoFunctor<GPUDevice, float>;
+template struct TimeTwoFunctor<GPUDevice, int32>;
+}  // end namespace functor
+}  // end namespace tensorflow
+
+#endif  // GOOGLE_CUDA
+```
+
+This code calls run_inference function in vector_add.py file. vector_add.py file 
+is located under tensorflow_time_two/python/ops. You can copy and paste it directly
+from our repo.
+
+#### Build the Code and Run the Test
+
+Run the following to build the code and run the test;
+
+```
+bazel build tensorflow_time_two:python/ops/_time_two_ops.so
+bazel test tensorflow_time_two:time_two_ops_py_test
+```
+
+The code should build without any error and the tests should pass. If you'd like to see
+the messages on the terminal, you can run this as well;
+
+```
+bazel-bin/tensorflow_time_two/time_two_ops_py_test
+```
+
+
+### TF Serving
+
+TF serving typically serves models that are developed with the tf functions. It also allows
+developers to serve models with custom functions. To do that, tf server has to be built with
+the source code of the custom function.
+
+We went through the content in this [tf serving page](https://www.tensorflow.org/tfx/guide/serving)
+to learn more about the tf serving. Please run the examples on this page before building the tf server.
+
+#### Install Libraries and Modules in the Docker Container
+
+There is also a docker container for tf server. Same libraries has to be installed in this container.
+
